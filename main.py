@@ -102,7 +102,7 @@ def personalized_bkt(num_students, num_skills, num_items, q_matrix, response_mat
     }
 
 # ---------- Load and Process CSV ----------
-df = pd.read_csv("clean_dataset.csv", nrows=20000)
+df = pd.read_csv("clean_dataset.csv", nrows=100000)
 
 
 # Encode IDs
@@ -139,41 +139,49 @@ results = personalized_bkt(
     q_matrix=q_matrix,
     response_matrix=response_matrix
 )
-# Create skill_id to skill_name mapping
 skill_id_to_name = (
     df.drop_duplicates(subset=["skill_idx"])[["skill_idx", "skill_name"]]
     .set_index("skill_idx")["skill_name"]
     .to_dict()
 )
-
-# Mapping between internal student_idx and original user_id
 idx_to_user_id = dict(enumerate(user_encoder.classes_))
 user_id_to_idx = {v: k for k, v in idx_to_user_id.items()}
-
-
-# Also useful: reverse mapping if needed
 skill_name_to_id = {v: k for k, v in skill_id_to_name.items()}
 
 
-predicted = 0
-student_id = 1
-skill_id = 0
-while predicted == 0:
-    predicted = results["predict_next_performance"](student_id, skill_id)
-    student_id +=1
-    skill_name = skill_id_to_name.get(skill_id, "Unknown Skill")
-    actual_user_id = idx_to_user_id.get(student_id)
-    print(f"Predicted performance for Student {actual_user_id} or {student_id} on Skill '{skill_name}': {predicted:.4f}")
+# # ---------- Cluster Summary ----------
+# clusters = results["clusters"]
+# print("\nCluster Counts:")
+# for cid in np.unique(clusters):
+#     count = np.sum(clusters == cid)
+#     print(f"Cluster {cid}: {count} students")
 
+# print("\nMean Learning Probability by Cluster:")
+# print(results["mean_learning_by_cluster"])
 
+low_count = 0
+high_count = 0
+mid_count = 0
+total_predictions = 0
 
+num_students = len(idx_to_user_id)
+num_skills = len(skill_id_to_name)
 
-# ---------- Cluster Summary ----------
-clusters = results["clusters"]
-print("\nCluster Counts:")
-for cid in np.unique(clusters):
-    count = np.sum(clusters == cid)
-    print(f"Cluster {cid}: {count} students")
+for student_idx in range(num_students):
+    for skill_idx in range(num_skills):
+        predicted = results["predict_next_performance"](student_idx, skill_idx)
 
-print("\nMean Learning Probability by Cluster:")
-print(results["mean_learning_by_cluster"])
+        if predicted < 0.1:
+            low_count += 1
+        elif predicted > 0.9:
+            high_count += 1
+        else:
+            mid_count += 1
+
+        total_predictions += 1
+
+# print("=== Prediction Distribution Across All Students & Skills ===")
+print(f"Total Predictions Made: {total_predictions}")
+print(f"Low (< 0.1): {low_count}")
+print(f"High (> 0.9): {high_count}")
+print(f"Mid (0.1 - 0.9): {mid_count}")
