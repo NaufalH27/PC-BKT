@@ -1,3 +1,9 @@
+
+![image](https://github.com/user-attachments/assets/8716a112-393c-45c5-be8f-ea17dc2fef80)
+
+![image](https://github.com/user-attachments/assets/6fc56050-83c0-4377-91f8-d7a1ca393d5a)
+
+
 prediction history
 
 20.000 data points:<br>
