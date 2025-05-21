@@ -11,3 +11,6 @@ Total Predictions Made: 61538<br>
 Low (< 0.1): 54472<br>
 High (> 0.9): 7066<br>
 Mid (0.1 - 0.9): 0<br>
+
+
+refrensi : https://www.researchgate.net/publication/283479593_Predicting_students'_performance_on_intelligent_tutoring_system_-_Personalized_clustered_BKT_PC-BKT_model
